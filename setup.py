@@ -100,8 +100,8 @@ def assert_version_classifier(version_str):
 
 
 if __name__ == "__main__":
-    version = find_meta("version")
-    assert_version_classifier(version)
+#     version = find_meta("version")
+#     assert_version_classifier(version)
 
     setup(
         name=NAME,
