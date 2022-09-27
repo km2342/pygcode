@@ -82,7 +82,7 @@ def assert_version_classifier(version_str):
 
 
 if __name__ == "__main__":
-    version = metadata._version_
+    version = metadata.__version__
     assert_version_classifier(version)
 
     setup(
