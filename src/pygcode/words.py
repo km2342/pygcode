@@ -13,8 +13,8 @@ class Word(object):
         args_count = len(args)
         if args_count == 1:
             # Word('G90')
-            letter = args[0][0] # first letter
-            value = args[0][1:] # rest of string
+            letter = args[0][0]  # first letter
+            value = args[0][1:]  # rest of string
         elif args_count == 2:
             # Word('G', 90)
             (letter, value) = args
@@ -24,12 +24,11 @@ class Word(object):
         # Parameters (keyword)
         dialect = kwargs.pop('dialect', dialects.get_default())
 
-        if dialect == dialects.get_default():
-            user_input_fp = kwargs.pop('x_y_truncation', config.DEFAULT_FLOAT_PRECISION)
-            if validate_float_precision_input(user_input_fp):
-                config.float_precision = user_input_fp
-            else:
-                raise ValueError(config.fp_exception)
+        user_input_fp = kwargs.pop('xy_decimals', config.DEFAULT_FLOAT_PRECISION)
+        if validate_float_precision_input(user_input_fp):
+            config.float_precision = user_input_fp
+        else:
+            raise ValueError(config.fp_exception)
 
         letter = letter.upper()
 
@@ -95,22 +94,26 @@ class Word(object):
 
     @value.setter
     def value(self, new_value):
-        self._value = self._value_class(new_value)
+        prog = self._regex_pattern
+        parsed_value = prog.search(str(new_value))
+        grouped_value = parsed_value.group()
+        correct_parsed_value = self._value_class(grouped_value)
+        self._value = self._value_class(correct_parsed_value)
 
     @property
     def description(self):
         return "%s: %s" % (self.letter, self._word_map[self.letter].description)
 
 
-def text2words(block_text, dialect=None, x_y_truncation=config.DEFAULT_FLOAT_PRECISION):
+def text2words(block_text, dialect=None, xy_decimals=config.DEFAULT_FLOAT_PRECISION):
     """
     Iterate through block text yielding Word instances
     :param block_text: text for given block with comments removed
     """
     if dialect is None:
         dialect = dialects.get_default()
-        if validate_float_precision_input(x_y_truncation):
-            config.float_precision = x_y_truncation
+        if validate_float_precision_input(xy_decimals):
+            config.float_precision = xy_decimals
         else:
             raise ValueError(config.fp_exception)
 
@@ -124,24 +127,24 @@ def text2words(block_text, dialect=None, x_y_truncation=config.DEFAULT_FLOAT_PRE
         if letter_match:
             # Letter
             letter = letter_match.group('letter').upper()
-            index += letter_match.end() # propogate index to start of value
+            index += letter_match.end()  # propogate index to start of value
 
             # Value
             value_regex = word_map[letter].value_regex
             value_match = value_regex.search(block_text[index:])
             if value_match is None:
                 raise GCodeWordStrError("word '%s' value invalid" % letter)
-            value = value_match.group() # matched text
+            value = value_match.group()  # matched text
 
-            yield Word(letter, value, x_y_truncation=x_y_truncation)
+            yield Word(letter, value, **{"xy_decimals": xy_decimals})
 
-            index += value_match.end() # propogate index to end of value
+            index += value_match.end()  # propogate index to end of value
         else:
             break
 
-    remainder = block_text[index:]
-    if remainder and re.search(r'\S', remainder):
-        raise GCodeWordStrError("block code remaining '%s'" % remainder)
+    # remainder = block_text[index:]
+    # if remainder and re.search(r'\S', remainder):
+    #     raise GCodeWordStrError("block code remaining '%s'" % remainder)
 
 
 def str2word(word_str):

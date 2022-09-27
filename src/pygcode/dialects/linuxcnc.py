@@ -11,32 +11,35 @@ dialects either inherit, or directly reference these classes.
 
 TODO: verify above info before publishing
 """
-
 import re
+import sys, os
 
+os.path.dirname(os.path.abspath(__file__))
 from .utils import WordType
-from .. import words
 from .. import config
+from .. import words
 
 # ======================== WORDS ========================
 
-REGEX_FLOAT = re.compile(r'^\s*-?(\d+\.?\d*|\.\d+)')  # testcase: ..tests.test_words.WordValueMatchTests.test_float
+REGEX_FLOAT = re.compile(r'^\s*-?(\d+\.?\d*|\.\d+)') # testcase: ..tests.test_words.WordValueMatchTests.test_float
 REGEX_INT = re.compile(r'^\s*-?\d+')
 REGEX_POSITIVEINT = re.compile(r'^\s*\d+')
-REGEX_CODE = re.compile(r'^\s*\d+(\.\d)?')  # float, but can't be negative
+REGEX_CODE = re.compile(r'^\s*\d+(\.\d)?') # float, but can't be negative
 
 # Value cleaning functions
 def _clean_codestr(value):
     if value < 10:
-        return "0%f" % value
-    return "%f" % value
+        return "0%g" % value
+    return "%g" % value
 
 def _clean_x_y(value):
-    val = "{0:." + str(config.float_precision) + "}"
-    return val.format(value)
+    val = "%." + str(config.float_precision) + "f"
+    # val = "{0:." + str(config.float_precision) + "}"
+    return val % value
 
 CLEAN_NONE = lambda v: v
-CLEAN_FLOAT = lambda v: "{0:.3}".format(v)
+# CLEAN_FLOAT = lambda v: "{0:.3}".format(v)
+CLEAN_FLOAT = lambda v: "{0:g}".format(round(v, 3))
 CLEAN_X_Y_FLOAT = _clean_x_y
 CLEAN_CODE = _clean_codestr
 CLEAN_INT = lambda v: "%d" % v
@@ -93,9 +96,9 @@ WORD_MAP = {
     # Tool Offsets
     'H': WordType(
         cls=float,
-        value_regex=REGEX_FLOAT,
+        value_regex=REGEX_CODE,
         description="Defines tool length offset; Incremental axis corresponding to C axis (e.g., on a turn-mill)",
-        clean_value=CLEAN_FLOAT,
+        clean_value=CLEAN_CODE,
     ),
     # Arc radius center coords
     'I': WordType(
@@ -140,13 +143,13 @@ WORD_MAP = {
     # Program Name
     'O': WordType(
         cls=str,
-        value_regex=re.compile(r'^.+$'),  # all the way to the end
+        value_regex=re.compile(r'^.+$'), # all the way to the end
         description="Program name",
         clean_value=CLEAN_NONE,
     ),
     # Parameter (arbitrary parameter)
     'P': WordType(
-        cls=float,  # parameter is often an integer, but can be a float
+        cls=float, # parameter is often an integer, but can be a float
         value_regex=REGEX_FLOAT,
         description="Serves as parameter address for various G and M codes",
         clean_value=CLEAN_FLOAT,
@@ -168,14 +171,14 @@ WORD_MAP = {
     # Spindle speed
     'S': WordType(
         cls=float,
-        value_regex=REGEX_FLOAT,
+        value_regex=REGEX_CODE,
         description="Defines speed, either spindle speed or surface speed depending on mode",
-        clean_value=CLEAN_FLOAT,
+        clean_value=CLEAN_CODE,
     ),
     # Tool Selecton
     'T': WordType(
         cls=str,
-        value_regex=REGEX_POSITIVEINT,  # tool string may have leading '0's, but is effectively an index (integer)
+        value_regex=REGEX_POSITIVEINT, # tool string may have leading '0's, but is effectively an index (integer)
         description="Tool selection",
         clean_value=CLEAN_NONE,
     ),

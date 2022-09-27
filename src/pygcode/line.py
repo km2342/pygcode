@@ -7,13 +7,14 @@ class Line(object):
 
     line_regex = re.compile(r'^(?P<block_and_comment>.*?)?(?P<macro>%.*%?)?\s*$')
 
-    def __init__(self, text=None):
+    def __init__(self, text=None, xy_decimals=3):
         self._text = text
 
         # Initialize
         self.block = None
         self.comment = None
         self.macro = None
+        self.xy_decimals = xy_decimals
 
         # Split line into block text, and comments
         if text is not None:
@@ -23,7 +24,7 @@ class Line(object):
             self.macro = match.group('macro')
 
             (block_str, comment) = split_line(block_and_comment)
-            self.block = Block(block_str)
+            self.block = Block(block_str, xy_decimals=self.xy_decimals)
             if comment:
                 self.comment = comment
 

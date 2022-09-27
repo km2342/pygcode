@@ -4,7 +4,7 @@ import inspect
 import re
 import unittest
 
-# Add relative pygcode to path
+# Add relative pygcode_mod to path
 from testutils import add_pygcode_to_path, str_lines
 add_pygcode_to_path()
 

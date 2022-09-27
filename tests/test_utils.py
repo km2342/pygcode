@@ -1,13 +1,13 @@
 import unittest
 import re
 
-# Add relative pygcode to path
-from testutils import add_pygcode_to_path, str_lines
+# Add relative pygcode_mod to path
+from testutils import add_pygcode_to_path
 add_pygcode_to_path()
 
 # Units under test
 from pygcode.utils import omit_redundant_modes
-from pygcode import text2gcodes, Line
+from pygcode import  Line
 
 class UtilityTests(unittest.TestCase):
     def test_omit_redundant_modes(self):

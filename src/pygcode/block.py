@@ -7,7 +7,7 @@ from . import dialects
 class Block(object):
     """GCode block (effectively any gcode file line that defines any <word><value>)"""
 
-    def __init__(self, text=None, dialect=None, verify=True):
+    def __init__(self, text=None, dialect=None, verify=True, xy_decimals=3):
         """
         Block Constructor
         :param text: gcode line content (including comments) as string
@@ -27,6 +27,7 @@ class Block(object):
         self.words = []
         self.gcodes = []
         self.modal_params = []
+        self.xy_decimals = xy_decimals
 
         if dialect is None:
             dialect = dialects.get_default()
@@ -42,7 +43,7 @@ class Block(object):
             self._text = text  # cleaned up block content
 
             # Get words from text, and group into gcodes
-            self.words = list(text2words(self._text))
+            self.words = list(text2words(self._text, xy_decimals=xy_decimals))
             (self.gcodes, self.modal_params) = words2gcodes(self.words)
 
             # Verification

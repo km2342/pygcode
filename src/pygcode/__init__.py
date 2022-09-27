@@ -6,9 +6,9 @@
 #   1.x                 - Development Status :: 5 - Production/Stable
 #   <any above>.y       - developments on that version (pre-release)
 #   <any above>*.dev*   - development release (intended purely to test deployment)
-__version__ = "0.2.2"
+__version__ = "0.2.1"
 
-__title__ = "pygcode"
+__title__ = "pygcode_mod"
 __description__ = "Basic g-code parser, interpreter, and encoder library."
 __url__ = "https://github.com/fragmuffin/pygcode"
 
@@ -40,7 +40,7 @@ __all__ = [
 
     # GCodes
     'words2gcodes', 'text2gcodes', 'split_gcodes',
-    # $ python -c "from pygcode.gcodes import GCode, _subclasses as sc; print(',\\n    '.join(sorted('\\'%s\\'' % g.__name__ for g in sc(GCode))))"
+    # $ python -c "from pygcode_mod.gcodes import GCode, _subclasses as sc; print(',\\n    '.join(sorted('\\'%s\\'' % g.__name__ for g in sc(GCode))))"
     'GCode',
     'GCodeAbsoluteArcDistanceMode',
     'GCodeAbsoluteDistanceMode',
@@ -194,7 +194,7 @@ from .words import (
 # GCode
 from .gcodes import (
     words2gcodes, text2gcodes, split_gcodes,
-    # $ python -c "from pygcode.gcodes import _gcode_class_infostr as x; print(x(prefix='    # '))"
+    # $ python -c "from pygcode_mod.gcodes import _gcode_class_infostr as x; print(x(prefix='    # '))"
     #       - GCode:
     #         - GCodeCannedCycle:
     # G89       - GCodeBoringCycleDwellFeedOut: G89: Boring Cycle, Dwell, Feed Out
@@ -322,7 +322,7 @@ from .gcodes import (
     # G20       - GCodeUseInches: G20: use inches for length units
     # G21       - GCodeUseMillimeters: G21: use millimeters for length units
 
-    # $ python -c "from pygcode.gcodes import GCode, _subclasses as sc; print(',\\n    '.join(sorted(g.__name__ for g in sc(GCode))))"
+    # $ python -c "from pygcode_mod.gcodes import GCode, _subclasses as sc; print(',\\n    '.join(sorted(g.__name__ for g in sc(GCode))))"
     GCode,
     GCodeAbsoluteArcDistanceMode,
     GCodeAbsoluteDistanceMode,

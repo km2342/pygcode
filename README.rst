@@ -10,9 +10,19 @@ for python.
 
 Changes made
 ============
-This fork allows the user to pass a parameter to a Word Object that will truncate the x and y floats
-for increased precision. Scientific notation is also not allowed to be output due to the CNC Machine
-not being able to handle it and the dependencies are pinned to prevent future issues.
+
+-- This fork allows the user to pass the amount of decimal places that
+they want (maximum of 6 to prevent user error) the X and Y letters
+to display to allow for greater precision.
+
+-- mappings for specific letters and conversion from letters to gcode in gcodes.py
+
+-- The dependencies are pinned to prevent blockers in production.
+
+-- The letters 'S' and 'H' are treated as strings instead of floats to prevent
+issues with the CNC machine.
+
+-- setup.py is now able to install pygcode via pip to virtual environments.
 
 
 Installation
@@ -20,9 +30,7 @@ Installation
 
 Install using ``pip``
 
-``pip install pygcode``
-
-or `download directly from PyPi <https://pypi.python.org/pypi/pygcode>`__
+``pip install git+https://github.com/km2342/pygcode``
 
 
 Documentation
