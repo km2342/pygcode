@@ -33,8 +33,9 @@ class Word(object):
         letter = letter.upper()
 
         self._word_map = getattr(getattr(dialects, dialect), 'WORD_MAP')
-        self._value_class = self._word_map[letter].cls
-        self._regex_pattern = self._word_map[letter].value_regex
+        self.value_class = self._word_map[letter].value_class
+        self.value_regex = self._word_map[letter].value_regex
+        self.alternate_regex = self._word_map[letter].alternate_regex
         self._value_clean = self._word_map[letter].clean_value
 
         self.letter = letter
@@ -81,28 +82,34 @@ class Word(object):
     @property
     def value_str(self):
         """Clean string representation, for consistent file output"""
-        prog = self._regex_pattern
-        parsed_value = prog.search(str(self.value))
-        grouped_value = parsed_value.group()
-        correct_parsed_value = self._value_class(grouped_value)
-        return self._value_clean(correct_parsed_value)
+        return self._value_clean(self.value)
 
     # Value Properties
     @property
     def value(self):
         return self._value
 
+
     @value.setter
     def value(self, new_value):
-        prog = self._regex_pattern
-        parsed_value = prog.search(str(new_value))
-        grouped_value = parsed_value.group()
-        correct_parsed_value = self._value_class(grouped_value)
-        self._value = self._value_class(correct_parsed_value)
+        if isinstance(new_value, re.Match):
+            new_value = new_value.group()
+        self._value = self.value_class(new_value)
+
 
     @property
     def description(self):
         return "%s: %s" % (self.letter, self._word_map[self.letter].description)
+
+
+def regex_searches(val, cls):
+    prog = cls.value_regex
+    stringified_value = str(val).lower()
+    parsed_value = prog.search(stringified_value)
+    if parsed_value is None and cls.alternate_regex:
+        alt_prog = cls.alternate_regex
+        parsed_value = alt_prog.search(stringified_value)
+    return parsed_value
 
 
 def text2words(block_text, dialect=None, xy_decimals=config.DEFAULT_FLOAT_PRECISION):
@@ -130,21 +137,19 @@ def text2words(block_text, dialect=None, xy_decimals=config.DEFAULT_FLOAT_PRECIS
             index += letter_match.end()  # propogate index to start of value
 
             # Value
-            value_regex = word_map[letter].value_regex
-            value_match = value_regex.search(block_text[index:])
-            if value_match is None:
+            value = regex_searches(block_text[index:], word_map[letter])
+            if value is None:
                 raise GCodeWordStrError("word '%s' value invalid" % letter)
-            value = value_match.group()  # matched text
 
             yield Word(letter, value, **{"xy_decimals": xy_decimals})
 
-            index += value_match.end()  # propogate index to end of value
+            index += value.end()  # propogate index to end of value
         else:
             break
 
-    # remainder = block_text[index:]
-    # if remainder and re.search(r'\S', remainder):
-    #     raise GCodeWordStrError("block code remaining '%s'" % remainder)
+    remainder = block_text[index:]
+    if remainder and re.search(r'\S', remainder):
+        raise GCodeWordStrError("block code remaining '%s'" % remainder)
 
 
 def str2word(word_str):

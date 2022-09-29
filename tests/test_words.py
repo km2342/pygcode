@@ -1,7 +1,7 @@
 import unittest
 
 # Add relative pygcode to path
-from testutils import add_pygcode_to_path, str_lines
+from .testutils import add_pygcode_to_path
 add_pygcode_to_path()
 
 # Units under test
@@ -11,14 +11,22 @@ from pygcode import dialects
 
 class WordIterTests(unittest.TestCase):
     def test_iter1(self):
-        block_str = 'G01 Z-0.5 Y0.511111423 F100'
-        w = list(words.text2words(block_str, x_y_truncation=6))
+        block_str = 'G01 Z-0.5123456789 Y-0.511111423 X-3.234e+4 F100 Z1.5 Z-1 Y-1 Z-1.752e-12 Y-1.752e-12'
+        w = list(words.text2words(block_str, xy_decimals=5))
         # word length
-        self.assertEqual(len(w), 4)
-        self.assertEqual(w[0], words.Word('G', 1))
-        self.assertEqual(w[1], words.Word('Z', -0.5, x_y_truncation=6))
-        self.assertEqual(str(w[2]), str(words.Word('Y', 0.51111142342, x_y_truncation=6)))
-        self.assertEqual(w[3], words.Word('F', 100))
+        self.assertEqual(len(w), 10)
+        self.assertEqual(w[0].value_str, words.Word('G', 1).value_str)
+        self.assertEqual(w[1].value_str, words.Word('Z', -0.512, xy_decimals=5).value_str)
+        self.assertEqual(w[2].value_str, words.Word('Y', -0.51111, xy_decimals=5).value_str)
+        self.assertEqual(w[3].value_str, words.Word('X', -32340.00000, xy_decimals=5).value_str)
+        self.assertEqual(w[4].value_str, words.Word('F', 100).value_str)
+        self.assertEqual(w[5].value_str, words.Word('Z', 1.5).value_str)
+        self.assertEqual(w[6].value_str, words.Word('Z', -1).value_str)
+        self.assertEqual(w[7].value_str, words.Word('Y', -1.00000).value_str)
+        # testing for scientific notation in non x and y letters
+        self.assertEqual(w[8].value_str, words.Word('Z', .000).value_str)
+        # testing for duplicate negative signs in X string
+        self.assertEqual(w[9].value_str, words.Word('Y', .000).value_str)
 
     def test_iter2(self):
         block_str = 'G02 X10.75 Y47.44 I-0.11 J-1.26 F70'
