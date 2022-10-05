@@ -39,6 +39,11 @@ def clean_float(value):
     return edge_case_clean(val)
 
 
+def _clean_r(value):
+    val = "%.6f" % value
+    return edge_case_clean(val)
+
+
 def edge_case_clean(string_clean):
     # removes leading zeros and the negative sign if the value a zero
     if float(string_clean) == 0:
@@ -53,6 +58,7 @@ CLEAN_NONE = lambda v: v
 CLEAN_FLOAT = clean_float
 CLEAN_X_Y_FLOAT = _clean_x_y
 CLEAN_CODE = _clean_codestr
+CLEAN_OTHER = _clean_r
 CLEAN_INT = lambda v: "%d" % v
 # first parses for scientific notation, then for regular float values
 REGEX_FLOAT_SCIENTIFIC_NOTATION = re.compile(r'^[+-]?\d+(?:\.\d*(?:[eE][+-]?\d+)?)?')
@@ -201,7 +207,7 @@ WORD_MAP = {
         value_regex=REGEX_FLOAT_SCIENTIFIC_NOTATION,
         alternate_regex=REGEX_FLOAT_INTEGER,
         description="Defines size of arc radius, or defines retract height in milling canned cycles",
-        clean_value=CLEAN_FLOAT,
+        clean_value=CLEAN_OTHER,
     ),
     # Spindle speed
     'S': WordType(
